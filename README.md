@@ -11,6 +11,7 @@ A good place to start
 * curriculum: https://learn.freecodecamp.org/
 * YouTube: https://www.youtube.com/channel/UC8butISFwT-Wl7EV0hUK0BQ
 * Forum: https://forum.freecodecamp.org/top
+* Meetups: https://www.meetup.com/topics/freecodecamp/
 
 If you need help with one of the courses, then I will take the course with you
 
