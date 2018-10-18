@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" >
+<head>
+<meta charset="utf-8" >
+<meta name="viewport" content = "width=device-width,user-scalable=no,minimum-scale=1.0,maximum-scale=1.0" >
+<meta name=description content="Real-time interactive 3D graphics in your browser using the WebGL and the Three.js JavaScript library" >
+<meta name=keywords content="Three.js,WebGL,JavaScript,GitHub,FOSS,3D,STEM" >
+<meta name = "date" content = "2018-09-06" >
+<title>C9 3D</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<script src = "https://cdn.rawgit.com/mrdoob/three.js/r97/build/three.min.js" ></script>
+<script src = "https://cdn.rawgit.com/mrdoob/three.js/r97/examples/js/controls/OrbitControls.js" ></script>
+<script src = "./thr-threejs.js" ></script>
+<script src = "./thru-threejs-utilities.js"></script>
+
+	<main id="container" ></main>
+
+	<nav id = "navMenu" >
+
+		<header id="navHeader" >howdy world</header>
+
+		<p><button onclick=THR.scene.remove(THRU.cubes);THRU.cubes=THRU.getSomeBoxes();THR.scene.add(THRU.cubes); >update cubes</button></p>
+
+		<details open >
+
+			<summary>Settings</summary>
+
+			<div id = "divSettings" ></div>
+
+		</details>
+
+		<details open >
+
+			<summary>Renderer Info</summary>
+
+			<div id = "divInfo" ></div>
+
+		</details>
+
+		<div id = "divContents" ></div>
+
+		<div id = "divLog" ></div>
+
+	</nav>
+
+
+<script>
+
+
+const url = 'https://www.pinterest.com/andranikokroyan/c9/';
+const urlCORS = 'https://cors-anywhere.herokuapp.com/';
+
+const urlSourceCode = "https://github.com/zzzzz/zzzzz.github.io/tree/master/xxxxx/";
+
+let images;
+let delta = 0;
+
+
+init();
+
+
+
+function init() {
+
+	fetchJson(url,divContents);
+
+	navHeader.innerHTML = getTitle();
+
+	//divSettings.innerHTML = THRU.getSettings( divSettings );
+	divSettings.innerHTML = THRU.getSettings();
+
+	THR.getThreejs();
+
+	THRU.setHelpers();
+
+	THR.animate();
+
+	divInfo.innerHTML = THRU.getRenderInfo();
+
+}
+
+
+
+function getTitle() {
+
+	document.title = document.title ? document.title : location.href.split( '/' ).pop().slice( 0, - 5 ).replace( /-/g, ' ' );
+
+	const htm =
+	`
+		<h2>
+			<a href=${ urlSourceCode } target=_top title="Source code on GitHub" >
+				<img src=https://status.github.com/images/invertocat.png height=18 >
+			</a>
+			<a href="" title="Click to reload this page" >${ document.title }</a>
+		</h2>
+
+		<p>
+			${ document.head.querySelector( "[ name=description ]" ).content }
+		</p>
+	`;
+
+	return htm;
+
+}
+
+
+
+	function fetchJson( url, target ){
+		//console.log (url );
+
+		const request = new Request( urlCORS + url );
+
+		fetch( request )
+			.then( function( response ) { return response.text() })
+			.then( function( text ) { parseJson( text, divContents ) } );
+
+	}
+
+
+
+	function parseJson( text, target ) {
+
+		const parser = new DOMParser();
+
+		const doc = parser.parseFromString( text, "text/html" );
+		//console.log( 'doc', doc );
+		//console.log( 'doc scr', doc.scripts );
+
+		const scr = doc.scripts.jsInit1;
+		//console.log( 'scr', scr );
+
+		const json = JSON.parse(scr.innerHTML);
+		//console.log( 'json', json );
+
+		images = json.resourceDataCache[ 0 ].data.images["474x"]
+		console.log( 'images', images  );
+
+		getSomeBoxes();
+
+
+	}
+
+
+
+function getSomeBoxes( count = 50, size = 10, material = new THREE.MeshNormalMaterial() ) {
+
+	//const geometry = new THREE.BoxGeometry( size, size, size );
+	//const geometry = new THREE.BoxBufferGeometry( size, size, size );
+	const geometry = new THREE.CylinderGeometry( 35, 30, 50, 12, 1, true, 0, 1.5 );
+
+	geometry.applyMatrix( new THREE.Matrix4().makeRotationX( 0.5 * Math.PI ) );
+
+	//const material = new THREE.MeshBasicMaterial();
+
+	boxes = []
+
+	count = 0;
+	for ( let i = 0; i < 50; i++ ) {
+
+		var texture = new THREE.TextureLoader().load( urlCORS + images[ count ].url );
+		texture.minFilter = texture.magFilter = THREE.NearestFilter;
+		texture.needsUpdate = true;
+
+		count = ++ count >= images.length ? 0 : count;
+
+		const material = new THREE.MeshBasicMaterial( { color: 0xeeeeee, map: texture, side: 2 } );
+
+		scale = Math.random();
+		const mesh = new THREE.Mesh( geometry, material );
+		mesh.position.set( 0, 0, 100 - 200 * scale );
+		mesh.rotation.set( 0, 0, 7 * Math.random() );
+		//mesh.scale.set( scale, scale, scale );
+
+		mesh.userData.z = mesh.position.z;
+		mesh.userData.delta = 2 * Math.floor( Math.random() ) - 1;
+		boxes.push( mesh );
+
+		THR.scene.add( mesh);
+
+	}
+
+	animate()
+
+};
+
+
+function animate() {
+
+	requestAnimationFrame( animate );
+
+	count = 0;
+	boxes.forEach( box => {
+
+		const scale = 50 * Math.sin( delta + count++ );
+		box.position.z = - scale;
+		box.scale.set( 0.01 * ( scale + 51 ), 0.01 * ( scale + 51 ), 1)
+
+	} );
+
+	delta = delta + 0.001;
+};
+
+</script>
+</body>
+</html>
