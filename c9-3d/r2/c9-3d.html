@@ -67,6 +67,7 @@ let renderer, camera, controls, scene;
 let meshes = [];
 
 function v( x, y, z ){ return new THREE.Vector3( x, y, z ); }
+
 init();
 animate();
 
@@ -79,6 +80,8 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { alpha: 1, antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	document.body.appendChild( renderer.domElement );
 
 	camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
@@ -86,6 +89,7 @@ function init() {
 	camera.up.set( 0, 0, 1 );
 
 	controls = new THREE.TrackballControls( camera, renderer.domElement );
+	controls.maxDistance = 500;
 
 	scene = new THREE.Scene();
 
@@ -103,73 +107,74 @@ function init() {
 	texture.repeat.set( 4, 4 );
 	//texture.minFilter = texture.magFilter = THREE.NearestFilter;
 	texture.onload = function() { texture.needsUpdate = true; }
-	geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
-	material = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texture, side: 2  });
-	mesh = new THREE.Mesh( geometry, material );
-	mesh.position.z = -70;
-	//scene.add( mesh );
-
 	toggleBackgroundGradient();
 
+	//geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
+	//mesh = new THREE.Mesh( geometry, material );
+	//mesh.position.z = -70;
+	//scene.add( mesh );
 
 
-// Ground plane
-		//material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff } );
-		geometry = new THREE.PlaneGeometry( 400, 400, 100, 100 );
-		//geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-		mesh = new THREE.Mesh( geometry, material );
-		mesh.position.set( 40, 0, -75 );
-		scene.add( mesh );
 
-		for (var i = 0, vtx, dis, len = mesh.geometry.vertices.length; i < len; i++) {
-			vtx = mesh.geometry.vertices[i];
-			dis = vtx.distanceTo( v( 0, 0, 0 ) );
-			if (  dis > 150 ) {
-				vtx.z = 300 - 2 * dis - 80 * Math.random();
-			}
+
+	// Ground plane
+	//material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff } );
+	geometry = new THREE.PlaneGeometry( 400, 400, 100, 100 );
+	//geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+	material = new THREE.MeshPhongMaterial( { color: 0xffffff, map: texture, side: 2  });
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.position.set( 40, 0, -75 );
+	mesh.castShadow = true
+	mesh.receiveShadow = true;
+	scene.add( mesh );
+
+	for (var i = 0, vtx, dis, len = mesh.geometry.vertices.length; i < len; i++) {
+		vtx = mesh.geometry.vertices[i];
+		dis = vtx.distanceTo( v( 0, 0, 0 ) );
+		if (  dis > 150 ) {
+			vtx.z = 300 - 2 * dis - 80 * Math.random();
 		}
-		//mesh.scale.x = 3.2;
-		mesh = mesh.clone();
-		mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
-		//scene.add( mesh );
+	}
+	//mesh.scale.x = 3.2;
+	mesh = mesh.clone();
+	mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
+	//scene.add( mesh );
 
-
+/*
 		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff } );
+		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
 		mesh = new THREE.Mesh( geometry, material );
 		mesh.position.set( 0, 5, -70 );
+		mesh.castShadow = true
+		mesh.receiveShadow = true;
 		scene.add( mesh );
 
-		mesh = mesh.clone();
-		mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
-		scene.add( mesh );
 
 		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff } );
+		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
 		mesh = new THREE.Mesh( geometry, material );
 		mesh.rotation.z = 0.1;
 		mesh.position.set( 20, 2, -71);
-		material = new THREE.MeshLambertMaterial( {color: Math.random() * 0xffffff, wireframe: false } );
+		mesh.castShadow = true
+		mesh.receiveShadow = true;
 		scene.add( mesh );
 
-		mesh = mesh.clone();
-		mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
-		scene.add( mesh );
 
 		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshLambertMaterial( {color: Math.random() * 0xffffff } );
+		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
 		mesh = new THREE.Mesh( geometry, material );
 		mesh.rotation.z = -0.15;
 		mesh.position.set( 50, -2, -72);
-		material = new THREE.MeshLambertMaterial( {color: Math.random() * 0xffffff, wireframe: false } );
+		mesh.castShadow = true
+		mesh.receiveShadow = true;
 		scene.add( mesh );
+*/
 
-		mesh = mesh.clone();
-		mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
-		scene.add( mesh );
+		addSomeLights();
 
 
 }
+
 
 
 
@@ -225,17 +230,19 @@ function getSomeBoxes( count = 50, size = 10, material = new THREE.MeshNormalMat
 
 		count = ++ count >= images.length ? 0 : count;
 
-		const material = new THREE.MeshBasicMaterial( { color: 0xeeeeee, map: texture, side: 2 } );
+		const material = new THREE.MeshStandardMaterial( { color: 0xeeeeee, map: texture, side: 2 } );
 
 		scale = Math.random();
 		const mesh = new THREE.Mesh( geometry, material );
 		mesh.rotation.set( 0, 0, 7 * Math.random() );
+		mesh.castShadow = true
+		mesh.receiveShadow = true;
 		meshes.push( mesh );
 
 	}
 
 	scene.add( ...meshes );
-	animate()
+	animate();
 
 };
 
@@ -280,6 +287,36 @@ function toggleBackgroundGradient() {
 }
 
 
+
+
+function addSomeLights() {
+
+	lightAmbient = new THREE.AmbientLight( 0x888888 );
+	lightAmbient.name = 'lightAmbient';
+	scene.add( lightAmbient );
+
+	lightDirectional = new THREE.DirectionalLight( 0xffffff, 3 );
+	lightDirectional.shadow.mapSize.width = 2048;  // default 512
+	lightDirectional.shadow.mapSize.height = 2048;
+	lightDirectional.castShadow = true;
+	lightDirectional.shadow.camera.scale.set( 20, 25, 3 );
+	lightDirectional.position.set( -100, -100, 100 )
+
+	scene.add( lightDirectional );
+
+	//targetObject = new THREE.Object3D();
+	//scene.add( targetObject );
+
+	//lightDirectional.target = targetObject;
+
+	//scene.add( new THREE.CameraHelper( lightDirectional.shadow.camera ) );
+
+	//lightPoint = new THREE.PointLight( 0xffffff, 0.5 );
+	//lightPoint.position = new THREE.Vector3( 0, 0, 1 );
+	//camera.add( lightPoint );
+	//scene.add( camera );
+
+};
 
 
 
