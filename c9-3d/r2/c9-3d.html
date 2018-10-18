@@ -101,6 +101,7 @@ function init() {
 	const axesHelper = new THREE.AxesHelper( 100 );
 	scene.add( axesHelper );
 
+	// Ground plane
 	const texture = new THREE.TextureLoader().load( 'backgrounddetailed6.jpg' );
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
@@ -109,18 +110,8 @@ function init() {
 	texture.onload = function() { texture.needsUpdate = true; }
 	toggleBackgroundGradient();
 
-	//geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
-	//mesh = new THREE.Mesh( geometry, material );
-	//mesh.position.z = -70;
-	//scene.add( mesh );
-
-
-
-
-	// Ground plane
 	//material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff } );
 	geometry = new THREE.PlaneGeometry( 400, 400, 100, 100 );
-	//geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 	material = new THREE.MeshPhongMaterial( { color: 0xffffff, map: texture, side: 2  });
 	mesh = new THREE.Mesh( geometry, material );
 	mesh.position.set( 40, 0, -75 );
@@ -135,42 +126,38 @@ function init() {
 			vtx.z = 300 - 2 * dis - 80 * Math.random();
 		}
 	}
-	//mesh.scale.x = 3.2;
-	mesh = mesh.clone();
-	mesh.material = new THREE.MeshBasicMaterial( { wireframe: true } );
-	//scene.add( mesh );
-
-/*
-		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
-		mesh = new THREE.Mesh( geometry, material );
-		mesh.position.set( 0, 5, -70 );
-		mesh.castShadow = true
-		mesh.receiveShadow = true;
-		scene.add( mesh );
 
 
-		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
-		mesh = new THREE.Mesh( geometry, material );
-		mesh.rotation.z = 0.1;
-		mesh.position.set( 20, 2, -71);
-		mesh.castShadow = true
-		mesh.receiveShadow = true;
-		scene.add( mesh );
+	geometry = new THREE.BoxGeometry( 100, 80, 10 );
+	material = new THREE.MeshPhongMaterial( {color: Math.random() * 0x555555 } );
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.position.set( 0, 5, -70 );
+	mesh.castShadow = true
+	mesh.receiveShadow = true;
+	scene.add( mesh );
 
 
-		geometry = new THREE.BoxGeometry( 200, 100, 10 );
-		material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
-		mesh = new THREE.Mesh( geometry, material );
-		mesh.rotation.z = -0.15;
-		mesh.position.set( 50, -2, -72);
-		mesh.castShadow = true
-		mesh.receiveShadow = true;
-		scene.add( mesh );
-*/
+	geometry = new THREE.BoxGeometry( 120, 100, 10 );
+	material = new THREE.MeshPhongMaterial( {color: Math.random() * 0x888888 } );
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.rotation.z = 0.1;
+	mesh.position.set( 20, 2, -71);
+	mesh.castShadow = true
+	mesh.receiveShadow = true;
+	scene.add( mesh );
 
-		addSomeLights();
+
+	geometry = new THREE.BoxGeometry( 100, 150, 10 );
+	material = new THREE.MeshPhongMaterial( {color: Math.random() * 0xffffff } );
+	mesh = new THREE.Mesh( geometry, material );
+	mesh.rotation.z = -0.15;
+	mesh.position.set( 50, -2, -72);
+	mesh.castShadow = true
+	mesh.receiveShadow = true;
+	scene.add( mesh );
+
+
+	addSomeLights();
 
 
 }
